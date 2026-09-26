@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "name": "NO Hardware AI Studio",
+  "short_name": "no",
+  "description": "Unlimited hardware design, PCB synthesis, physics verification, Astra-6 3D pre-fabrication visualizer, durability testing, and global component sourcing.",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#090a0f",
+  "background_color": "#090a0f",
+  "categories": ["productivity", "utilities", "developer"],
+  "icons": [
+    {
+      "src": "/no-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/no-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

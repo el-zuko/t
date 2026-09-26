@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Background with subtle dark titanium gradient -->
+  <rect width="512" height="512" rx="112" fill="#090a0f"/>
+  <rect x="24" y="24" width="464" height="464" rx="92" stroke="#27272a" stroke-width="6"/>
+
+  <!-- Precision alignment corner ticks -->
+  <path d="M48 96H96M48 96V48" stroke="#71717a" stroke-width="8" stroke-linecap="round"/>
+  <path d="M464 96H416M464 96V48" stroke="#71717a" stroke-width="8" stroke-linecap="round"/>
+  <path d="M48 416H96M48 416V464" stroke="#71717a" stroke-width="8" stroke-linecap="round"/>
+  <path d="M464 416H416M464 416V464" stroke="#71717a" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Precision 'N' in titanium silver -->
+  <path d="M120 370V142H176L270 304V142H320V370H266L170 206V370H120Z" fill="#e4e4e7"/>
+
+  <!-- Precision Orbital 'O' in titanium dark slate with glowing core -->
+  <circle cx="376" cy="330" r="54" stroke="#a1a1aa" stroke-width="20"/>
+  <circle cx="376" cy="330" r="22" fill="#d4d4d8"/>
+
+  <!-- Subtitle line -->
+  <text x="256" y="440" text-anchor="middle" fill="#71717a" font-family="-apple-system, system-ui, sans-serif" font-weight="700" font-size="26" letter-spacing="8">HARDWARE ENGINE</text>
+</svg>

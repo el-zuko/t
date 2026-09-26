@@ -1,0 +1,376 @@
+"use client";
+
+import {
+  Activity,
+  AlertTriangle,
+  Cable,
+  CircuitBoard,
+  Compass,
+  Cpu,
+  Gauge,
+  KanbanSquare,
+  KeyRound,
+  Layers,
+  LayoutList,
+  Plus,
+  Rocket,
+  Route,
+  ScrollText,
+  Search,
+  ShieldCheck,
+  Store,
+  TrendingUp,
+  Users,
+  Workflow,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command";
+
+interface CommandPaletteContextValue {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  toggle: () => void;
+  /** Register a named set of commands (replaces any prior set with that id). */
+  registerCommands: (id: string, commands: CommandAction[]) => void;
+  unregisterCommands: (id: string) => void;
+}
+
+const CommandPaletteContext = createContext<CommandPaletteContextValue | null>(null);
+
+/** Open/close the command palette, or (un)register dynamic commands. */
+export function useCommandPalette(): CommandPaletteContextValue {
+  const ctx = useContext(CommandPaletteContext);
+  if (!ctx) {
+    throw new Error("useCommandPalette must be used within <CommandPaletteProvider>");
+  }
+  return ctx;
+}
+
+/**
+ * Non-throwing variant: returns the palette context or `null` when no provider
+ * is mounted. Lets chrome (e.g. the top-bar hint) degrade gracefully in
+ * isolated renders/tests instead of crashing.
+ */
+export function useCommandPaletteOptional(): CommandPaletteContextValue | null {
+  return useContext(CommandPaletteContext);
+}
+
+/**
+ * Register a set of page-scoped commands while the calling component is mounted
+ * (e.g. the board view contributes "Create task" / "Search knowledge"). Pass a
+ * **stable** `commands` reference (memoize it) to avoid re-registration loops.
+ */
+export function useRegisterCommands(id: string, commands: CommandAction[]): void {
+  const { registerCommands, unregisterCommands } = useCommandPalette();
+  useEffect(() => {
+    registerCommands(id, commands);
+    return () => unregisterCommands(id);
+  }, [id, commands, registerCommands, unregisterCommands]);
+}
+
+export interface CommandAction {
+  id: string;
+  label: string;
+  icon?: ReactNode;
+  shortcut?: string;
+  group: string;
+  run: (router: ReturnType<typeof useRouter>) => void;
+}
+
+/**
+ * Always-available navigation/create commands. Page-scoped behavioural commands
+ * (create-task wired to the API, etc.) are contributed via
+ * {@link useRegisterCommands}.
+ */
+export const DEFAULT_COMMANDS: CommandAction[] = [
+  // Work
+  {
+    id: "go-pcb",
+    label: "Go to PCB AI Studio",
+    group: "Work",
+    icon: <CircuitBoard />,
+    run: (router) => router.push("/pcb"),
+  },
+  {
+    id: "go-list",
+    label: "Go to List",
+    group: "Work",
+    icon: <LayoutList />,
+    run: (router) => router.push("/"),
+  },
+  {
+    id: "go-board",
+    label: "Go to Board",
+    group: "Work",
+    icon: <KanbanSquare />,
+    run: (router) => router.push("/board"),
+  },
+  {
+    id: "go-depth",
+    label: "Go to Board depth",
+    group: "Work",
+    icon: <Layers />,
+    run: (router) => router.push("/depth"),
+  },
+  {
+    id: "go-runs",
+    label: "Go to Runs",
+    group: "Work",
+    icon: <Activity />,
+    run: (router) => router.push("/runs"),
+  },
+  {
+    id: "go-approvals",
+    label: "Go to Approvals",
+    group: "Work",
+    icon: <ShieldCheck />,
+    run: (router) => router.push("/approvals"),
+  },
+  // Plan
+  {
+    id: "go-specs",
+    label: "Go to Specs",
+    group: "Plan",
+    icon: <Route />,
+    run: (router) => router.push("/specs"),
+  },
+  {
+    id: "go-sprints",
+    label: "Go to Sprints",
+    group: "Plan",
+    icon: <TrendingUp />,
+    run: (router) => router.push("/sprints"),
+  },
+  {
+    id: "go-workflow",
+    label: "Go to Workflows",
+    group: "Plan",
+    icon: <Workflow />,
+    run: (router) => router.push("/workflow"),
+  },
+  // Insight
+  {
+    id: "go-observability",
+    label: "Go to Observability",
+    group: "Insight",
+    icon: <Gauge />,
+    run: (router) => router.push("/observability"),
+  },
+  {
+    id: "go-incidents",
+    label: "Go to Incidents",
+    group: "Insight",
+    icon: <AlertTriangle />,
+    run: (router) => router.push("/incidents"),
+  },
+  {
+    id: "go-audit",
+    label: "Go to Audit log",
+    group: "Insight",
+    icon: <ScrollText />,
+    run: (router) => router.push("/audit"),
+  },
+  // Admin
+  {
+    id: "go-deployments",
+    label: "Go to Deployments",
+    group: "Admin",
+    icon: <Rocket />,
+    run: (router) => router.push("/deployments"),
+  },
+  {
+    id: "go-marketplace",
+    label: "Go to Marketplace",
+    group: "Admin",
+    icon: <Store />,
+    run: (router) => router.push("/marketplace"),
+  },
+  {
+    id: "go-ao-settings",
+    label: "Go to Models & Effort settings",
+    group: "Admin",
+    icon: <Cpu />,
+    run: (router) => router.push("/settings/models"),
+  },
+  {
+    id: "go-rbac",
+    label: "Go to Access & roles",
+    group: "Admin",
+    icon: <Users />,
+    run: (router) => router.push("/settings/rbac"),
+  },
+  {
+    id: "go-sso",
+    label: "Go to SSO settings",
+    group: "Admin",
+    icon: <KeyRound />,
+    run: (router) => router.push("/settings/sso"),
+  },
+  {
+    id: "go-integrations",
+    label: "Go to Integrations",
+    group: "Admin",
+    icon: <Cable />,
+    run: (router) => router.push("/settings/integrations"),
+  },
+  // Help
+  {
+    id: "go-walkthrough",
+    label: "Open guided walkthrough",
+    group: "Help",
+    icon: <Compass />,
+    run: (router) => router.push("/walkthrough"),
+  },
+];
+
+export interface BuildBoardCommandsOptions {
+  onCreateTask: () => void;
+  onSearch?: () => void;
+}
+
+/** Board-scoped command set, parameterised by the page's callbacks. */
+export function buildBoardCommands({
+  onCreateTask,
+  onSearch,
+}: BuildBoardCommandsOptions): CommandAction[] {
+  const commands: CommandAction[] = [
+    {
+      id: "create-task",
+      label: "Create task",
+      group: "Create",
+      icon: <Plus />,
+      shortcut: "C",
+      run: () => onCreateTask(),
+    },
+  ];
+  if (onSearch) {
+    commands.push({
+      id: "search-knowledge",
+      label: "Search knowledge",
+      group: "Create",
+      icon: <Search />,
+      shortcut: "/",
+      run: () => onSearch(),
+    });
+  }
+  return commands;
+}
+
+export interface CommandPaletteProviderProps {
+  children: ReactNode;
+  /** Base commands (defaults to navigation/create). */
+  commands?: CommandAction[];
+}
+
+export function CommandPaletteProvider({
+  children,
+  commands = DEFAULT_COMMANDS,
+}: CommandPaletteProviderProps) {
+  const [open, setOpen] = useState(false);
+  const [dynamic, setDynamic] = useState<Record<string, CommandAction[]>>({});
+  const router = useRouter();
+
+  const toggle = useCallback(() => setOpen((value) => !value), []);
+
+  const registerCommands = useCallback((id: string, next: CommandAction[]) => {
+    setDynamic((prev) => ({ ...prev, [id]: next }));
+  }, []);
+
+  const unregisterCommands = useCallback((id: string) => {
+    setDynamic((prev) => {
+      if (!(id in prev)) {
+        return prev;
+      }
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  }, []);
+
+  // Cmd+K / Ctrl+K toggles the palette globally.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        toggle();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [toggle]);
+
+  const value = useMemo(
+    () => ({ open, setOpen, toggle, registerCommands, unregisterCommands }),
+    [open, toggle, registerCommands, unregisterCommands],
+  );
+
+  // Page-contributed actions (e.g. "Create task") lead, then base navigation.
+  const allCommands = useMemo(
+    () => [...Object.values(dynamic).flat(), ...commands],
+    [commands, dynamic],
+  );
+
+  const grouped = useMemo(() => {
+    const groups = new Map<string, CommandAction[]>();
+    for (const command of allCommands) {
+      const list = groups.get(command.group) ?? [];
+      list.push(command);
+      groups.set(command.group, list);
+    }
+    return Array.from(groups.entries());
+  }, [allCommands]);
+
+  return (
+    <CommandPaletteContext.Provider value={value}>
+      {children}
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandInput placeholder="Type a command or search…" />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          {grouped.map(([group, actions], index) => (
+            <div key={group}>
+              {index > 0 ? <CommandSeparator /> : null}
+              <CommandGroup heading={group}>
+                {actions.map((action) => (
+                  <CommandItem
+                    key={action.id}
+                    value={action.label}
+                    onSelect={() => {
+                      setOpen(false);
+                      action.run(router);
+                    }}
+                  >
+                    {action.icon}
+                    <span>{action.label}</span>
+                    {action.shortcut ? (
+                      <CommandShortcut>{action.shortcut}</CommandShortcut>
+                    ) : null}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </div>
+          ))}
+        </CommandList>
+      </CommandDialog>
+    </CommandPaletteContext.Provider>
+  );
+}

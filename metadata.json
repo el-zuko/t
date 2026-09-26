@@ -1,0 +1,6 @@
+{
+  "name": "NO",
+  "description": "Unlimited hardware engineering, PCB synthesis, physics verification, Astra-6 3D pre-fabrication visualizer, durability testing, and global component sourcing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
